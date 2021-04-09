@@ -1,5 +1,5 @@
 
-const  MONGODB_URL=process.env.MONGODB_URL||'mongodb://localhost/avipl';
+const  MONGODB_URL=process.env.MONGODB_URL||'mmongodb+srv://test123:test123@cluster0.tfyuf.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
 const  JWT_SECRET=process.env.JWT_SECRET ||'somethingsecret';
 const  myemail='';
 const mypassword='';
