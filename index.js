@@ -40,8 +40,9 @@ app.use(function(req, res, next) {
 app.use(authRouter);
 app.use(mailRouter);
 
-app.use(datarouter);
+
 app.get('*',requireAuth);
+app.use(datarouter);
 app.get('/',(req,res)=>{
   const token = req.cookies.jwt;
     jwt.verify(token, 'rahulk', async (err, decodedToken) => {
