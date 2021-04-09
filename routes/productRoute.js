@@ -170,11 +170,7 @@ router.get("/categories", async (req, res) => {
   });
 });
 
-router.get("/api/categories", async (req, res) => {
-  const categories = await Category.find();
 
-  res.json({ title: "Categories", categories: categories })
-});
 
 
 

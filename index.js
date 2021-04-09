@@ -15,6 +15,8 @@ const mailRouter=require("./routes/mailRoute").router;
 const Admin=require("./models/Admin");
 const requireAuth=require('./middleware/authmiddleware').requireAuth;
 dotenv.config();
+const Category = require('./models/product').Category;
+const Product = require('./models/product').Product;
 const mongoUrl=config.MONGODB_URL;
 // const mongoUrl="";
 mongoose.connect(mongoUrl,{
@@ -39,8 +41,15 @@ app.use(function(req, res, next) {
 
 app.use(authRouter);
 app.use(mailRouter);
+app.get("/api/categories", async (req, res) => {
+  const categories = await Category.find();
 
-
+  res.json({ title: "Categories", categories: categories })
+});
+app.get("/api/products", async (req, res) => {
+  const products = await Product.find();
+  res.json({ title: "Products", products: products })
+});
 app.get('*',requireAuth);
 app.use(datarouter);
 app.get('/',(req,res)=>{
