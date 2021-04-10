@@ -41,6 +41,10 @@ app.use(function(req, res, next) {
 
 app.use(authRouter);
 app.use(mailRouter);
+
+
+
+
 app.get("/api/categories", async (req, res) => {
   const categories = await Category.find();
 
@@ -50,6 +54,14 @@ app.get("/api/products", async (req, res) => {
   const products = await Product.find();
   res.json({ title: "Products", products: products })
 });
+
+router.get("/banner", async (req, res) => {
+
+    const banner = await Banner.find();
+    res.json({ title: " Banners", banner: banner });
+
+});
+
 app.get('*',requireAuth);
 app.use(datarouter);
 app.get('/',(req,res)=>{
