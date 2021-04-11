@@ -56,7 +56,7 @@ app.get("/api/products", async (req, res) => {
   res.json({ title: "Products", products: products })
 });
 
-router.get("/api//banner", async (req, res) => {
+app.get("/api/banner", async (req, res) => {
 
     const banner = await Banner.find();
     res.json({ title: " Banners", banner: banner });
