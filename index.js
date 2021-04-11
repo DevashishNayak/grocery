@@ -17,6 +17,7 @@ const requireAuth=require('./middleware/authmiddleware').requireAuth;
 dotenv.config();
 const Category = require('./models/product').Category;
 const Product = require('./models/product').Product;
+const Banner = require('./models/product').Banner;
 const mongoUrl=config.MONGODB_URL;
 // const mongoUrl="";
 mongoose.connect(mongoUrl,{
@@ -55,7 +56,7 @@ app.get("/api/products", async (req, res) => {
   res.json({ title: "Products", products: products })
 });
 
-router.get("/banner", async (req, res) => {
+router.get("/api//banner", async (req, res) => {
 
     const banner = await Banner.find();
     res.json({ title: " Banners", banner: banner });
