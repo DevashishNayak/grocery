@@ -21,12 +21,12 @@ const CategorySchema=new mongoose.Schema({
 })
 
 const Banner_s=new mongoose.Schema({
-    title:{type:String},
-    description:{type:String},
-    redirect:{type:String},
-    image:{type:String}
+    title:{type:String,required:false},
+    description:{type:String,required:false},
+    redirect:{type:String,required:false},
+    image:{type:String,required:false}
 })
-const Banner=mongoose.model("Banner",Banner_s);
+const Banner=mongoose.model("banner",Banner_s);
 const Category=mongoose.model("category",CategorySchema);
 const Product=mongoose.model('product',ProductSchema);
 module.exports={Product,Category,Banner};
