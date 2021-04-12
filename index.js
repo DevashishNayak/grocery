@@ -55,7 +55,11 @@ app.get("/api/products", async (req, res) => {
   const products = await Product.find();
   res.json({ title: "Products", products: products })
 });
-
+app.get("/api/product/:id", async (req, res) => {
+  const id=req.params.id;
+  const product = await Product.findById(id);
+  res.json({product: product});
+});
 app.get("/api/banner", async (req, res) => {
 
     const banner = await Banner.find();
