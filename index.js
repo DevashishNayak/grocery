@@ -51,14 +51,29 @@ app.get("/api/categories", async (req, res) => {
 
   res.json({ title: "Categories", categories: categories })
 });
+
+app.get("/api/categories/:id", async (req, res) => {
+  const id=req.params.id;
+  const productscat = await Product.find({category_id:id});
+  res.json({ productscat });
+});
+
+
 app.get("/api/products", async (req, res) => {
   const products = await Product.find();
-  res.json({ title: "Products", products: products })
+  res.json({products })
 });
+
+app.get("/api/search/products", async (req, res) => {
+  const search=req.query.search;
+  const searchproducts = await Product.find({name:search});
+  res.json({searchproducts })
+});
+
 app.get("/api/product/:id", async (req, res) => {
   const id=req.params.id;
   const product = await Product.findById(id);
-  res.json({product: product});
+  res.json({product});
 });
 app.get("/api/banner", async (req, res) => {
 
