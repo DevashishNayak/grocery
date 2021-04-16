@@ -10,7 +10,8 @@ const ProductSchema=new mongoose.Schema({
     quantity:{type:Number,required:true,default:0},
     price:{type:Number,required:true,default:0},
     unit:{type:String,required:false},
-    discount:{type:Number,required:false}
+    discount:{type:Number,required:false},
+    rating:{type:Map,required:false}
 
    
    }); 

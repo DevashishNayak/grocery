@@ -66,7 +66,10 @@ app.get("/api/products", async (req, res) => {
 
 app.get("/api/search/products", async (req, res) => {
   const search=req.query.search;
-  const searchproducts = await Product.find({name:search});
+  const regex = new RegExp(search, 'i') 
+  const searchproducts = await Product.find(
+    {name:{$regex: regex}  } 
+);
   res.json({searchproducts })
 });
 
