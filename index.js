@@ -85,6 +85,14 @@ app.get("/api/banner", async (req, res) => {
 
 });
 
+app.get("/api/banner", async (req, res) => {
+  const token = req.cookies.jwt;
+
+    const All = await Banner.find();
+    res.json( {All});
+ 
+});
+
 app.get('*',requireAuth);
 app.use(datarouter);
 app.get('/',(req,res)=>{
