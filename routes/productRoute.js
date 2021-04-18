@@ -217,7 +217,7 @@ router.get("/banner", async (req, res) => {
 
     const All = await Banner.find();
    console.log(All)
-    res.render('banner', { title: " Banners", banner: All, admin: admin })
+    res.render('banner', { title: "Banners", banner: All, admin: admin })
   });
 });
 
