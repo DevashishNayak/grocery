@@ -197,14 +197,14 @@ router.post("/add_banner", async (req, res) => {
   jwt.verify(token, 'rahulk', async (err, decodedToken) => {
     let admin = await Admin.findById(decodedToken.id);
     console.log(req.body);
-    let newBanner = new Banner({
+    const newBanner = new Banner({
       title:req.body.title,
       description:req.body.description,
       image:req.body.image,
       redirect:req.body.redirect});
-    if(newBanner){
-      res.json({msg:"banner created"});
-    }
+   newBanner.save().then(respo=>{ console.log(respo);
+    res.json({msg:"banner created"});});
+   
 
   });
 });
@@ -215,9 +215,9 @@ router.get("/banner", async (req, res) => {
   jwt.verify(token, 'rahulk', async (err, decodedToken) => {
     let admin = await Admin.findById(decodedToken.id);
 
-    const banner = await Banner.find({});
-   console.log(banner)
-    res.render('banner', { title: " Banners", banner: banner, admin: admin })
+    const All = await Banner.find();
+   console.log(All)
+    res.render('banner', { title: " Banners", banner: All, admin: admin })
   });
 });
 

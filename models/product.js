@@ -11,7 +11,7 @@ const ProductSchema=new mongoose.Schema({
     price:{type:Number,required:true,default:0},
     unit:{type:String,required:false},
     discount:{type:Number,required:false},
-    rating:{type:Map,required:false}
+    rating:{type:Array,required:false}
 
    
    }); 
