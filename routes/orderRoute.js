@@ -8,5 +8,6 @@ router.get('/orders',(req,res)=>{
      
     res.render('orders',{admin:admin,title:"Dashboard"})
   });});
+  
 
   module.exports=router;

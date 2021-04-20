@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const mysql=require('mysql');
 const PORT =  process.env.PORT || 3000;
 const ejs=require("ejs");
+
 const dotenv = require("dotenv");
 const bodyParser=require('body-parser');
 const cookieParser =require('cookie-parser');
@@ -18,6 +19,7 @@ dotenv.config();
 const Category = require('./models/product').Category;
 const Product = require('./models/product').Product;
 const Banner = require('./models/product').Banner;
+const Order = require('./models/Order');
 const mongoUrl=config.MONGODB_URL;
 // const mongoUrl="";
 mongoose.connect(mongoUrl,{
@@ -93,6 +95,91 @@ app.get("/api/banner", async (req, res) => {
  
 });
 
+// ####################### authenticate ###########
+// / handle errors
+const handleErrors = (err) => {
+  console.log(err.message, err.code);
+  let errors = { email: '', password: '' };
+
+  // incorrect email
+  if (err.message === 'incorrect email') {
+    errors.email = 'That email is not registered';
+    return errors;
+  }
+
+  // incorrect password
+  if (err.message === 'incorrect password') {
+    errors.password = 'That password is incorrect';
+    return errors;
+
+  }
+
+  // duplicate email error
+  if (err.code === 11000) {
+    errors.email = 'that email is already registered';
+    return errors;
+  }
+
+  // validation errors
+  if (err.message.includes('user validation failed')) {
+    // console.log(err);
+    Object.values(err.errors).forEach(({ properties }) => {
+      // console.log(val);
+      // console.log(properties);
+      errors[properties.path] = properties.message;
+    });
+  }
+}
+
+app.post('/api/login',async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await Admin.login(email, password);
+    const token = createToken(user._id);
+    res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+    
+    res.send({msg:"logged in"});
+  } 
+  catch (err) {
+    const errors = handleErrors(err);
+    res.send({ msg:errors.email || errors.password});
+  }
+
+});
+const maxAge = 2* 60 * 60;
+const createToken = (id) => {
+  return jwt.sign({ id }, 'rahulk', {
+    expiresIn: maxAge
+  });
+};
+app.post('/api/signup',async (req, res) => {
+  const { email, password ,mobile,address,fullname,pincode } = req.body;
+  console.log(req.body);
+  
+  try {
+    const user = await Admin.create({ email, password,mobile,address,fullname,pincode });
+    const token = createToken(user._id);
+    res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+    res.status(201).json({ user: user._id,msg:"registered succesfull" });
+  }
+  catch(err) {
+    const errors = handleErrors(err);
+    res.send({ msg:errors.email || errors.password});
+  }
+ 
+});
+app.post('/api/orders',async(req,res)=>{
+const {userId,productId,quantity}=req.body;
+const newOrder=await Order.create({userId:userId,productId:productId,quantity});
+
+if(newOrder){
+  res.json({orderId:newOrder._id});
+}
+   
+   
+  res.render('orders',{admin:admin,title:"Dashboard"})
+});
 app.get('*',requireAuth);
 app.use(datarouter);
 app.get('/',(req,res)=>{
