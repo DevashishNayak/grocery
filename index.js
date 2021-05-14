@@ -19,7 +19,8 @@ dotenv.config();
 const Category = require('./models/product').Category;
 const Product = require('./models/product').Product;
 const Banner = require('./models/product').Banner;
-const Order = require('./models/Order');
+const Order = require('./models/Order').Order;
+const { Adress } = require('./models/Order');
 const mongoUrl=config.MONGODB_URL;
 // const mongoUrl="";
 mongoose.connect(mongoUrl,{
@@ -170,16 +171,61 @@ app.post('/api/signup',async (req, res) => {
  
 });
 app.post('/api/orders',async(req,res)=>{
-const {userId,productId,quantity}=req.body;
-const newOrder=await Order.create({userId:userId,productId:productId,quantity});
+const {adress,city,pincode,state,userId}=req.body;
+const newAdress=await Order.create({adress:adress,city:city,pincode:pincode,state:state,userId:userId});
 
-if(newOrder){
-  res.json({orderId:newOrder._id});
+if(newAdress){
+  res.json({adressId:newAdress._id});
 }
    
-   
-  res.render('orders',{admin:admin,title:"Dashboard"})
+  res.json("unable to add the adress");
 });
+
+app.get('/api/adress',async(req,res)=>{
+const adress=await Adress.find();
+res.json(adress);
+});
+
+
+
+
+app.post('/api/adress',async(req,res)=>{
+  const {userId,productId,quantity,adressId}=req.body;
+  const newOrder=await Order.create({userId:userId,productId:productId,quantity:quantity,adressId:adressId});
+  
+  if(newOrder){
+    res.json({orderId:newOrder._id});
+  }
+     
+    res.json("unable to place th order")
+  });
+  
+  app.get('/api/adress',async(req,res)=>{
+  const orders=await Order.find();
+  res.json(orders);
+  });
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.get('*',requireAuth);
 app.use(datarouter);
 app.get('/',(req,res)=>{
