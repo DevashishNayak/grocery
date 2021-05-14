@@ -200,7 +200,7 @@ app.post('/api/adress',async(req,res)=>{
     res.json("unable to place th order")
   });
   
-  app.get('/api/adress',async(req,res)=>{
+  app.get('/api/orders',async(req,res)=>{
   const orders=await Order.find();
   res.json(orders);
   });
