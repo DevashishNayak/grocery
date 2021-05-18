@@ -21,6 +21,7 @@ const Product = require('./models/product').Product;
 const Banner = require('./models/product').Banner;
 const Order = require('./models/Order').Order;
 const { Adress } = require('./models/Order');
+const User = require('./models/User');
 const mongoUrl=config.MONGODB_URL;
 // const mongoUrl="";
 mongoose.connect(mongoUrl,{
@@ -204,6 +205,11 @@ app.post('/api/adress',async(req,res)=>{
   const orders=await Order.find();
   res.json(orders);
   });
+
+  app.get('/api/users',async(req,res)=>{
+    const users=await User.find();
+    res.json(users);
+    });
   
   
 

@@ -15,7 +15,7 @@ const AdminSchema= new mongoose.Schema({
       },
       mobile:{type:Number,required:false},
       address:{type:String,required:false},
-      pincode:{type:String,required:false},
+     
       fullName:{type:String,required:false}
 });
 
@@ -38,5 +38,5 @@ AdminSchema.statics.login = async function(email, password) {
     throw Error('incorrect email');
   };
 
-const Admin = mongoose.model('admin',AdminSchema);
-  module.exports= Admin;
+const User = mongoose.model('User',AdminSchema);
+  module.exports= User;
