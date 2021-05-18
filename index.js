@@ -20,7 +20,7 @@ const Category = require('./models/product').Category;
 const Product = require('./models/product').Product;
 const Banner = require('./models/product').Banner;
 const Order = require('./models/Order').Order;
-const { Adress } = require('./models/Order');
+const Address = require('./models/Order').Address;
 const mongoUrl = config.MONGODB_URL;
 // const mongoUrl="";
 mongoose.connect(mongoUrl, {
@@ -184,41 +184,233 @@ app.post('/api/signup', async(req, res) => {
     }
 
 });
-app.post('/api/orders', async(req, res) => {
-    const { adress, city, pincode, state, userId } = req.body;
-    const newAdress = await Order.create({ adress: adress, city: city, pincode: pincode, state: state, userId: userId });
 
-    if (newAdress) {
-        res.json({ adressId: newAdress._id });
+/*
+
+Create a new Address
+    body
+      {
+        "full_name" : "",
+        "line_1" : "",
+        "line_2" : "",
+        "phone_no" : ,
+        "city": "",
+        "state": "",
+        "pincode": 785089,
+        "userId": ""
     }
 
-    res.json("unable to add the adress");
+
+
+*/
+app.post('/api/address', async(req, res) => {
+    const { full_name, line_1, line_2, city, state, pincode, phone_no, userId } = req.body;
+    const newAddress = await Address.create({ full_name: full_name, line_1: line_1, line_2: line_2, city: city, state: state, pincode: pincode, phone_no: phone_no, userId: userId });
+
+    if (newAddress) {
+        res.json(newAddress._id);
+    }
+
+    res.json("unable to add the Address");
+});
+/*
+Get all addresses of a user 
+url : /api/addresses?user_id=
+*/
+app.get('/api/addresses', async(req, res) => {
+    if (!req.query.user_id) {
+        res.json([]);
+    } else {
+        const address = await Address.find({ userId: req.query.user_id });
+        res.json(address);
+    }
+
 });
 
-app.get('/api/adress', async(req, res) => {
-    const adress = await Adress.find();
-    res.json(adress);
+
+app.delete('/api/address/:id', async(req, res) => {
+
+    const address = await Address.findByIdAndDelete(req.params.id);
+    if (address)
+        res.json("Deleted Address");
+    else res.json("Failed to Delete");
+
 });
 
 
+/**
+ * Sample Post Request
+ * {
+  "userId": , 
+  "products":[{"productId": "60706654e120860022e605a8","productCount":10},
+	{"productId": "607066b9e120860022e605a9","productCount":7}] , 
+  "address":{
+    "full_name" : "Yashobanta Kumar Behera",
+    "line_1" : "IGIT",
+    "line_2" : "IGIT",
+    "phone_no" : 8114969195,
+    "city": "Bhiwadi",
+    "state": "Haryana",
+    "pincode": 785089,
+    "userId": "yash027@gmail.com"
+  }, 
+  "orderId": "jrubnvvh", 
+  "paymentId": "jhjryui",
+}
+ */
 
-
-app.post('/api/adress', async(req, res) => {
-    const { userId, productId, quantity, adressId } = req.body;
-    const newOrder = await Order.create({ userId: userId, productId: productId, quantity: quantity, adressId: adressId });
+app.post('/api/order', async(req, res) => {
+    const { userId, products, address, orderId, paymentId } = req.body;
+    const newOrder = await Order.create({ userId: userId, orderId: orderId, paymentId: paymentId, products: products, address: address });
 
     if (newOrder) {
         res.json({ orderId: newOrder._id });
+    } else {
+        res.json("unable to place th order")
     }
-
-    res.json("unable to place th order")
 });
 
+
+/*
+Get all Orders of a user 
+url : /api/orders?user_id=
+*/
 app.get('/api/orders', async(req, res) => {
-    const orders = await Order.find();
+    if (!req.query.user_id) {
+        res.json([]);
+    } else {
+        const orders = await Order.find({ userId: req.query.user_id });
+        res.json(orders);
+    }
     res.json(orders);
 });
 
+app.delete('/api/order/:id', async(req, res) => {
+
+    const order = await Order.findByIdAndDelete(req.params.id);
+    if (order)
+        res.json("Deleted order");
+    else res.json("Failed to Delete");
+
+});
+
+
+
+app.get('/api/activity/home', async(req, res) => {
+
+
+
+    const categories = await Category.find();
+
+    var home = `[
+    {
+      "type": "heading",
+      "text": "Exclusive Offer",
+      "color": "#674930"
+    },
+    {
+      "type": "carousel",
+      "items": [
+        {
+          "id": 1,
+          "title" : "",
+          "category_id" : "",
+          "art": "https://www.bigbasket.com/media/uploads/section_item/images/hdpi/HP_atta-banner_1440x692-1stjan21.jpg"
+        },
+        {
+          "id": 2,
+          "title" : "",
+          "category_id" : "",
+          "art": "https://www.bigbasket.com/media/uploads/section_item/images/hdpi/HP_NTP3871_Disinfectant-and-Freshener_1440x692_01Feb21.jpg"
+        },
+        {
+          "id": 3,
+          "title" : "",
+          "category_id" : "",
+          "art": "https://www.bigbasket.com/media/uploads/section_item/images/hdpi/2102026_delicious-snack_692.jpg"
+        },
+        {
+          "id": 4,
+          "title" : "",
+          "category_id" : "",
+          "art": "https://www.bigbasket.com/media/uploads/section_item/images/hdpi/210203_Fresho_meat_Bangalore-1440X692-3rdfeb21.jpg"
+        },
+        {
+          "id": 5,
+          "title" : "",
+          "category_id" : "",
+          "art": "https://www.bigbasket.com/media/uploads/section_item/images/hdpi/2102239_bbpl-staples_692_Bangalore.jpg"
+        },
+        {
+          "id": 6,
+          "title" : "",
+          "category_id" : "",
+          "art": "https://4.bp.blogspot.com/-uhjF2kC3tFc/U_r3myvwzHI/AAAAAAAACiw/tPQ2XOXFYKY/s1600/Circles-3.gif"
+        }
+      ]
+    },
+    {
+      "type": "slider",
+      "title": "Daily Needs",
+      "items": [
+        {
+          "id": 1,
+          "title": "Grocery and Staples",
+          "art": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=50,w=360,h=391/layout-engine/2020-10/shop_img01_7.png"
+        },
+        {
+          "id": 2,
+          "title": "Kitchen & Dinning",
+          "art": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=50,w=360,h=391/layout-engine/2021-01/Kitchen-Dining.png"
+        },
+        {
+          "id": 3,
+          "title": "Household Items",
+          "art": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=50,w=360,h=391/layout-engine/2020-10/shop_img03.png"
+        },
+        {
+          "id": 4,
+          "title": "Fruits & Vegetables",
+          "art": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=50,w=360,h=391/layout-engine/2020-10/shop_img05.png"
+        },
+        {
+          "id": 5,
+          "title": "Breakfast & Dairy",
+          "art": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=50,w=360,h=391/layout-engine/2020-10/shop_img07.png"
+        },
+        {
+          "id": 6,
+          "title": "Lowest Price Brands",
+          "art": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=50,w=360,h=391/layout-engine/2020-12/shop_img10-1_3.png"
+        },
+        {
+          "id": 7,
+          "title": "Best Value Brands",
+          "art": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=50,w=360,h=391/layout-engine/2020-12/shop_img11-1.png"
+        }
+      ]
+    },
+    {
+      "type": "banner",
+      "art": "https://cdn.grofers.com/cdn-cgi/image/f=auto,fit=scale-down,q=50,h=225/layout-engine/2021-02/1-flash-sale.jpg",
+      "title" : "50% off",
+      "categoryId": "7786256755"
+    },
+    {
+      "type": "heading",
+      "text": "Shop by Category",
+      "color": "#674930"
+    },
+    {
+      "type": "category",
+      "items": ${JSON.stringify(categories)},
+    }
+  ]`;
+
+    res.write(home);
+    res.end();
+
+});
 
 
 
