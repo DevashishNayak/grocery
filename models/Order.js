@@ -18,5 +18,5 @@ pincode:{type:Number,required:true,default:0},
    
    }); 
 const Order=mongoose.model("Order",OrderSchema);
-const Adress=mongoose.model("Order",OrderSchema);
+const Adress=mongoose.model("Adress",AddressSchema);
 module.exports={Order,Adress};
