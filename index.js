@@ -260,11 +260,17 @@ app.delete('/api/address/:id', async(req, res) => {
  */
 
 app.post('/api/order', async(req, res) => {
-    const { userId, products, address, orderId, paymentId } = req.body;
-    const newOrder = await Order.create({ userId: userId, orderId: orderId, paymentId: paymentId, products: products, address: address });
+    const { userId, amount, discount, products, address, orderId, paymentId, status } = req.body;
+
+    for (var i = 0; i < products.length; i++) {
+        const product = await Product.findById(products[i].productId);
+        await Product.findOneAndUpdate({ _id: product._id }, { $set: { quantity: (product.quantity - products[i].productCount) } }, { upsert: false }, null);
+    }
+
+    const newOrder = await Order.create({ userId: userId, orderId: orderId, paymentId: paymentId, products: products, address: address, amount: amount, discount: discount, status: status });
 
     if (newOrder) {
-        res.json({ orderId: newOrder._id });
+        res.json(newOrder._id);
     } else {
         res.json("unable to place th order")
     }
@@ -284,6 +290,28 @@ app.get('/api/orders', async(req, res) => {
     }
     res.json(orders);
 });
+
+app.put('/api/order', async(req, res) => {
+
+    const { _id, userId, products, address, orderId, paymentId, amount, discount, status } = req.body;
+    if (status == 'Failed') {
+        for (var i = 0; i < products.length; i++) {
+            const product = await Product.findById(products[i].productId);
+            await Product.findOneAndUpdate({ _id: product._id }, { $set: { quantity: (product.quantity + products[i].productCount) } }, { upsert: false }, null);
+        }
+    }
+
+    Order.findOneAndUpdate({ _id: _id, userId: userId, orderId: orderId }, { $set: { paymentId: paymentId, status: status } }, { upsert: false }, function(err, doc) {
+        if (err) {
+            res.json("failed");
+        } else {
+            console.log("Updated");
+            res.json("Success");
+        }
+    });
+
+});
+
 
 app.delete('/api/order/:id', async(req, res) => {
 
@@ -403,7 +431,7 @@ app.get('/api/activity/home', async(req, res) => {
     },
     {
       "type": "category",
-      "items": ${JSON.stringify(categories)},
+      "items": ${JSON.stringify(categories)}
     }
   ]`;
 
