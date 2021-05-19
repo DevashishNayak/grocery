@@ -1,3 +1,4 @@
+const { Double } = require('bson');
 const mongoose = require('mongoose');
 
 const AddressSchema = new mongoose.Schema({
@@ -16,6 +17,8 @@ const Address = mongoose.model("Address", AddressSchema);
 
 const OrderSchema = new mongoose.Schema({
     userId: { type: String, required: false },
+    amount: { type: Number, required: true },
+    discount: { type: Number, required: true },
     address: { type: AddressSchema },
     products: {
         type: [{
@@ -24,7 +27,8 @@ const OrderSchema = new mongoose.Schema({
         }]
     },
     paymentId: { type: String },
-    orderId: { type: String },
+    orderId: { type: String, required: false },
+    status: { type: String, required: false },
 
 });
 const Order = mongoose.model("Order", OrderSchema);
