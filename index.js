@@ -32,7 +32,8 @@ const Address = require('./models/Order').Address;
 mongoose.connect(mongoUrl, {
         useNewUrlParser: true,
         useCreateIndex: true,
-        useUnifiedTopology: true
+        useUnifiedTopology: true,
+        useFindAndModify: false
 
     }).then((res) => { app.listen(PORT, () => { console.log("connected to the", PORT) }); })
     .catch(error => console.log(error));
@@ -85,24 +86,21 @@ app.get("/api/products", async(req, res) => {
 
 app.get("/api/search/products", async(req, res) => {
     const search = req.query.search;
-    const regex = new RegExp(search, 'i')
+    const regex = new RegExp(search, 'i');
     const searchproducts = await Product.find({ name: { $regex: regex } });
     res.json(searchproducts)
 });
 
-
-// format api/productsByIds?ids=607066b9e120860022e605a9,6078272aea0a6c3c8ccbf20d
+/**
+ * format api/productsByIds?ids=607066b9e120860022e605a9,6078272aea0a6c3c8ccbf20d
+ *  - comma separated ids
+ */
 app.get("/api/productsByIds", async(req, res) => {
     if (!req.query.ids)
         res.json([]);
     else {
         var ids = [...new Set(req.query.ids.split(','))];
-        products = []
-
-        for (var i = 0; i < ids.length; i++) {
-            const product = await Product.findById(ids[i]);
-            products.push(product);
-        }
+        const products = await Product.find({ _id: { $in: ids } });
 
         res.json(products);
     }
@@ -276,19 +274,22 @@ app.delete('/api/address/:id', async(req, res) => {
  */
 
 app.post('/api/order', async(req, res) => {
-    const { userId, amount, discount, products, address, orderId, paymentId, status } = req.body;
+    const { userId, amount, discount, products, address, orderId, paymentId, status, date_time } = req.body;
 
+    order_products = []
     for (var i = 0; i < products.length; i++) {
         const product = await Product.findById(products[i].productId);
         await Product.findOneAndUpdate({ _id: product._id }, { $set: { quantity: (product.quantity - products[i].productCount) } }, { upsert: false }, null);
+        product.quantity = products[i].productCount;
+        order_products.push(product);
     }
 
-    const newOrder = await Order.create({ userId: userId, orderId: orderId, paymentId: paymentId, products: products, address: address, amount: amount, discount: discount, status: status });
+    const newOrder = await Order.create({ userId: userId, orderId: orderId, paymentId: paymentId, products: order_products, address: address, amount: amount, discount: discount, status: status, date_time: date_time });
 
     if (newOrder) {
         res.json(newOrder._id);
     } else {
-        res.json("unable to place th order")
+        res.json(null);
     }
 });
 
@@ -304,12 +305,23 @@ app.get('/api/orders', async(req, res) => {
         const orders = await Order.find({ userId: req.query.user_id });
         res.json(orders);
     }
-    res.json(orders);
 });
+
+
+app.get('/api/order/:id', async(req, res) => {
+    if (!req.params.id) {
+        res.json([]);
+    } else {
+        const orders = await Order.findById(req.params.id);
+        res.json(orders);
+    }
+});
+
 
 app.put('/api/order', async(req, res) => {
 
     const { _id, userId, products, address, orderId, paymentId, amount, discount, status } = req.body;
+
     if (status == 'Failed') {
         for (var i = 0; i < products.length; i++) {
             const product = await Product.findById(products[i].productId);
@@ -317,11 +329,10 @@ app.put('/api/order', async(req, res) => {
         }
     }
 
-    Order.findOneAndUpdate({ _id: _id, userId: userId, orderId: orderId }, { $set: { paymentId: paymentId, status: status } }, { upsert: false }, function(err, doc) {
+    Order.findOneAndUpdate({ _id: _id, userId: userId }, { $set: { orderId: orderId, paymentId: paymentId, status: status } }, { upsert: false }, function(err, doc) {
         if (err) {
             res.json("failed");
         } else {
-            console.log("Updated");
             res.json("Success");
         }
     });
@@ -329,22 +340,16 @@ app.put('/api/order', async(req, res) => {
 });
 
 
-// <<<<<<< HEAD
-app.post('/api/adress',async(req,res)=>{
-  const {userId,productId,quantity,adressId}=req.body;
-  const newOrder=await Order.create({userId:userId,productId:productId,quantity:quantity,adressId:adressId});
-  
-  if(newOrder){
-    res.json({orderId:newOrder._id});
-  }
-     
-    res.json("unable to place th order")
-  });
-  
-  app.get('/api/orders',async(req,res)=>{
-  const orders=await Order.find();
-  res.json(orders);
-  });
+
+app.get('/api/order/delete/:userid', async(req, res) => {
+
+    const order = await Order.deleteMany({ userId: req.params.userid }, null, null);
+    if (order)
+        res.json("all orders deleted");
+    else res.json("Failed to Delete");
+
+});
+
 
   app.get('/api/users',async(req,res)=>{
     const users=await User.find();
@@ -352,9 +357,8 @@ app.post('/api/adress',async(req,res)=>{
     });
   
   
-// =======
+
 app.delete('/api/order/:id', async(req, res) => {
-// >>>>>>> 9b572400d46e5c10d91716357092f91b5dc1f34c
 
     const order = await Order.findByIdAndDelete(req.params.id);
     if (order)
