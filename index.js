@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const mysql = require('mysql');
 const PORT = process.env.PORT || 3000;
 const ejs = require("ejs");
-
+const xls=require("read-excel-file/node");
 const dotenv = require("dotenv");
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -20,8 +20,14 @@ const Category = require('./models/product').Category;
 const Product = require('./models/product').Product;
 const Banner = require('./models/product').Banner;
 const Order = require('./models/Order').Order;
+// <<<<<<< HEAD
+const { Adress } = require('./models/Order');
+const User = require('./models/User');
+const mongoUrl=config.MONGODB_URL;
+// =======
 const Address = require('./models/Order').Address;
-const mongoUrl = config.MONGODB_URL;
+
+// >>>>>>> 9b572400d46e5c10d91716357092f91b5dc1f34c
 // const mongoUrl="";
 mongoose.connect(mongoUrl, {
         useNewUrlParser: true,
@@ -49,7 +55,17 @@ app.use(mailRouter);
 
 
 
+// xls
+app.get("/xls",(req,res)=>{
+ xls("./data.xlsx")
+  .then((rows)=>{
+    console.log(rows)
+    res.json(rows);
+  });
+  
+})
 
+// %%%%%%%%%%%%%%% category
 app.get("/api/categories", async(req, res) => {
     const categories = await Category.find();
 
@@ -324,6 +340,7 @@ app.put('/api/order', async(req, res) => {
 });
 
 
+
 app.get('/api/order/delete/:userid', async(req, res) => {
 
     const order = await Order.deleteMany({ userId: req.params.userid }, null, null);
@@ -332,6 +349,14 @@ app.get('/api/order/delete/:userid', async(req, res) => {
     else res.json("Failed to Delete");
 
 });
+
+
+  app.get('/api/users',async(req,res)=>{
+    const users=await User.find();
+    res.json(users);
+    });
+  
+  
 
 app.delete('/api/order/:id', async(req, res) => {
 
