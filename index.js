@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const mysql = require('mysql');
 const PORT = process.env.PORT || 3000;
 const ejs = require("ejs");
-
+const xls=require("read-excel-file/node");
 const dotenv = require("dotenv");
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -26,7 +26,7 @@ const User = require('./models/User');
 const mongoUrl=config.MONGODB_URL;
 // =======
 const Address = require('./models/Order').Address;
-const mongoUrl = config.MONGODB_URL;
+
 // >>>>>>> 9b572400d46e5c10d91716357092f91b5dc1f34c
 // const mongoUrl="";
 mongoose.connect(mongoUrl, {
@@ -54,7 +54,17 @@ app.use(mailRouter);
 
 
 
+// xls
+app.get("/xls",(req,res)=>{
+ xls("./data.xlsx")
+  .then((rows)=>{
+    console.log(rows)
+    res.json(rows);
+  });
+  
+})
 
+// %%%%%%%%%%%%%%% category
 app.get("/api/categories", async(req, res) => {
     const categories = await Category.find();
 
