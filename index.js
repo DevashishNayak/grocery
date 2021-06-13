@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const mysql = require('mysql');
 const PORT = process.env.PORT || 3000;
 const ejs = require("ejs");
+const multer = require("multer");
+const upload = multer({ dest: 'uploads/' })
 const xls=require("read-excel-file/node");
 const dotenv = require("dotenv");
 const bodyParser = require('body-parser');
@@ -63,6 +65,15 @@ app.get("/xls",(req,res)=>{
     res.json(rows);
   });
   
+})
+
+app.post("/xls", upload.single('file') ,(req,res)=>{
+    xls(req.file.path)
+     .then((rows)=>{
+       console.log(rows)
+       res.json(rows);
+     });
+     
 })
 
 // %%%%%%%%%%%%%%% category
@@ -521,4 +532,13 @@ app.get('/', (req, res) => {
 
 app.get('/forget', (req, res) => {
     res.render('forget', { admin: admin, title: "forget password" })
+});
+
+app.get('/import', (req, res) => {
+    const token = req.cookies.jwt;
+    jwt.verify(token, 'rahulk', async(err, decodedToken) => {
+        let admin = await Admin.findById(decodedToken.id);
+
+        res.render('import', { admin: admin, title: "Import" })
+    });
 });
